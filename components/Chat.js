@@ -1,12 +1,15 @@
 import React from "react";
 import { GiftedChat, Bubble, InputToolbar } from "react-native-gifted-chat";
 import { View, Platform, KeyboardAvoidingView, StyleSheet } from "react-native";
+import MapView from 'react-native-maps';
+
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import NetInfo from "@react-native-community/netinfo";
 
 import * as firebase from "firebase";
 import "firebase/firestore";
 
+import CustomActions from './CustomActions';
 
 const firebaseConfig = {
   apiKey: "AIzaSyBAkLn9Xjqq6AUjqlSL7Wuc1XkidVbePaE",
@@ -130,7 +133,17 @@ export default class Chat extends React.Component {
     });
   }
 
-  // add a new message to the collection
+    // stop listening to authentication and collection changes
+    componentWillUnmount() {
+      if (this.state.isConnected) {
+        // stop listening to authentication
+        this.authUnsubscribe();
+        // stop listening for changes
+        this.unsubscribe();
+      }
+    }
+
+
   addMessages() {
     const message = this.state.messages[0];
     this.referenceChatMessages.add({
@@ -145,9 +158,7 @@ export default class Chat extends React.Component {
 
   onCollectionUpdate = (querySnapshot) => {
     const messages = [];
-    // go through each document
     querySnapshot.forEach((doc) => {
-      // get the QueryDocumentSnapshot's data
       var data = doc.data();
       messages.push({
         _id: data._id,
@@ -168,17 +179,6 @@ export default class Chat extends React.Component {
     this.saveMessages();
   };
 
-  // stop listening to authentication and collection changes
-  componentWillUnmount() {
-    if (this.state.isConnected) {
-      // stop listening to authentication
-      this.authUnsubscribe();
-      // stop listening for changes
-      this.unsubscribe();
-    }
-  }
-
-  // Make sure messages are sent
   onSend(messages = []) {
     this.setState(
       (previousState) => ({
@@ -214,6 +214,31 @@ export default class Chat extends React.Component {
     }
   }
 
+  renderCustomActions(props) {
+    return <CustomActions {...props} />;
+  }
+
+  renderCustomView (props) {
+    const { currentMessage} = props;
+    if (currentMessage.location) {
+      return (
+          <MapView
+            style={{width: 150,
+              height: 100,
+              borderRadius: 13,
+              margin: 3}}
+            region={{
+              latitude: currentMessage.location.latitude,
+              longitude: currentMessage.location.longitude,
+              latitudeDelta: 0.0922,
+              longitudeDelta: 0.0421,
+            }}
+          />
+      );
+    }
+    return null;
+  }
+
   render() {
     let name = this.props.route.params.name;
     this.props.navigation.setOptions({ title: name });
@@ -224,9 +249,11 @@ export default class Chat extends React.Component {
       <View style={{ flex: 1, backgroundColor: bgColor}}>
         <GiftedChat
           renderBubble={this.renderBubble.bind(this)}
+          renderInputToolbar={this.renderInputToolbar.bind(this)}
+          renderActions={this.renderCustomActions}
+          renderCustomView={this.renderCustomView}
           messages={this.state.messages}
           onSend={(messages) => this.onSend(messages)}
-          renderInputToolbar={this.renderInputToolbar.bind(this)}
           user={{
             _id: this.state.user._id,
             name: this.state.name,
