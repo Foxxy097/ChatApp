@@ -12,12 +12,12 @@ import "firebase/firestore";
 import CustomActions from './CustomActions';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBAkLn9Xjqq6AUjqlSL7Wuc1XkidVbePaE",
-  authDomain: "test-66bd2.firebaseapp.com",
-  projectId: "test-66bd2",
-  storageBucket: "test-66bd2.appspot.com",
-  messagingSenderId: "1006041003923",
-  appId: "1:1006041003923:web:11b8867a74ca7cd651da66"
+  apiKey: "AIzaSyAR47LzajLxTNgkW8yyWaM0fX_36UId6m0",
+  authDomain: "chatapp-c61ce.firebaseapp.com",
+  projectId: "chatapp-c61ce",
+  storageBucket: "chatapp-c61ce.appspot.com",
+  messagingSenderId: "35258133774",
+  appId: "1:35258133774:web:ae8210a07cef8a781efb5f"
 };
 
 export default class Chat extends React.Component {
